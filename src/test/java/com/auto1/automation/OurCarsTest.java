@@ -1,10 +1,6 @@
 package com.auto1.automation;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -20,29 +16,42 @@ import org.testng.annotations.Test;
 */
 
 public class OurCarsTest extends BaseTest {
-    WebDriverWait wait;
     OurCarsPage ourCarsPage;
 
     @BeforeTest
     public void setUp() {
         driver = getDriver();
-        wait = new WebDriverWait(driver, 30);
         ourCarsPage = new OurCarsPage(driver);
     }
 
     @Test
     public void filterByChosenCheckbox() {
+        ourCarsPage.goToPage();
+        WebElement checkbox = ourCarsPage.findSpecifiedCheckbox(Strings.CheckboxValue);
+        ourCarsPage.clickCheckbox(checkbox);
+        Assert.assertTrue(ourCarsPage.checkThatCheckboxIsChecked(checkbox), "Checkbox isn't selected");
     }
 
     @Test(dependsOnMethods = "filterByChosenCheckbox")
     public void verifyCarBrandAccordingFilter() throws InterruptedException {
+        ourCarsPage.waitUntilFilterIsApply();
+        ourCarsPage.areCarNamesValid(Strings.CheckboxValue);
     }
 
     @Test(dependsOnMethods = "verifyCarBrandAccordingFilter")
     public void verifyEachCarHasPicture() {
+        ourCarsPage.checkThatCarsHavePicture();
     }
 
     @Test(dependsOnMethods = "verifyEachCarHasPicture")
     public void verifyCompleteInformationOfEachCar() {
+        ourCarsPage.checkThatCarsHaveSpecifiedAttribute(ourCarsPage.getListOfCarNameElements());
+        ourCarsPage.checkThatCarsHaveSpecifiedAttribute(ourCarsPage.getLisOfStockNumberElements());
+        ourCarsPage.checkThatCarsHaveSpecifiedAttribute(ourCarsPage.getOdometerReadingElements());
+        ourCarsPage.checkThatCarsHaveSpecifiedAttribute(ourCarsPage.getFirstRegistrationElements());
+        ourCarsPage.checkThatCarsHaveSpecifiedAttribute(ourCarsPage.getHorsepowerElements());
+        ourCarsPage.checkThatCarsHaveSpecifiedAttribute(ourCarsPage.getBodyTypeElements());
+        ourCarsPage.checkThatCarsHaveSpecifiedAttribute(ourCarsPage.getFuelTypeElements());
+        ourCarsPage.checkThatCarsHaveSpecifiedAttribute(ourCarsPage.getGearBoxElements());
     }
 }

@@ -1,17 +1,25 @@
 package com.auto1.automation;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class OurCarsPage {
     WebDriver driver;
+    WebDriverWait wait;
 
     public OurCarsPage(WebDriver driver) {
         this.driver = driver;
+        wait = new WebDriverWait(driver, 30, 10);
         PageFactory.initElements(driver, this);
     }
 
@@ -76,5 +84,77 @@ public class OurCarsPage {
 
     public List<WebElement> getGearBoxElements() {
         return gearBoxElements;
+    }
+
+    public void goToPage() {
+        driver.get(Strings.OurCarsUrl);
+    }
+
+    public WebElement findSpecifiedCheckbox(String name) {
+        return driver.findElement(By.xpath(String.format(Strings.CheckboxName, name)));
+    }
+
+    public void waitUntilFilterIsApply() {
+        try {
+            wait.until(ExpectedConditions.attributeContains(getListOfCarNameElements().get(0),"innerText", Strings.CheckboxValue));
+        } catch (StaleElementReferenceException e) {
+            wait.until(ExpectedConditions.attributeContains(getListOfCarNameElements().get(0),"innerText", Strings.CheckboxValue));
+        }
+    }
+
+    public void clickCheckbox(WebElement checkbox) {
+        checkbox.click();
+    }
+
+    public boolean checkThatCheckboxIsChecked(WebElement checkbox) {
+        WebElement ancestor = checkbox.findElement(By.xpath(".."));
+        String classNameValue = ancestor.getAttribute("className");
+        return classNameValue.equals("checked") ? true : false;
+    }
+
+    public void areCarNamesValid(String name) {
+        List<String> names = getListOfCarNamesFromCarElements();
+        if (!names.isEmpty()) {
+            for (int i = 0; i < names.size(); i++) {
+                Assert.assertTrue(names.get(i).contains(name),
+                        "Actual car name is " + names.get(i).toUpperCase() + ", but expected " + name.toUpperCase());
+            }
+        } else {
+            throw new RuntimeException("List of names is empty!");
+        }
+    }
+
+    private List<String> getListOfCarNamesFromCarElements() {
+        List<WebElement> elements = getListOfCarNameElements();
+        List<String> names = new ArrayList<String>();
+        if (!elements.isEmpty()) {
+            for (int i = 0; i < elements.size(); i++) {
+                names.add(elements.get(i).getText());
+            }
+        }
+        return names;
+    }
+
+    public void checkThatCarsHavePicture() {
+        List<WebElement> pictures = getLisOfImageElements();
+        if (!pictures.isEmpty()) {
+            for (int i = 0; i < pictures.size(); i++) {
+                Assert.assertNotNull(pictures.get(i).getAttribute("currentSrc")
+                        ,"Car in the list doesn't have a pictures");
+            }
+        } else {
+            throw new RuntimeException("List of pictures is empty!");
+        }
+    }
+
+    public void checkThatCarsHaveSpecifiedAttribute(List<WebElement> elements) {
+        if (!elements.isEmpty()) {
+            for (int i = 0; i < elements.size(); i++) {
+                Assert.assertNotNull(elements.get(i).getText()
+                        ,"Car in the list doesn't have a pictures");
+            }
+        } else {
+            throw new RuntimeException("List of elements is empty!");
+        }
     }
 }
