@@ -12,6 +12,7 @@ public class BaseTest {
 
     public WebDriver getDriver() {
         if (driver == null) {
+            System.setProperty("webdriver.chrome.driver", "bin/chromedriver");
             driver = new ChromeDriver();
             driver.manage().window().setSize(new Dimension(1200, 1600));
         }

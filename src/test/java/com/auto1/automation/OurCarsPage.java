@@ -1,9 +1,6 @@
 package com.auto1.automation;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -87,14 +84,17 @@ public class OurCarsPage {
     }
 
     public void goToPage() {
+        Logger.info("Go to Our cars page");
         driver.get(Strings.OurCarsUrl);
     }
 
     public WebElement findSpecifiedCheckbox(String name) {
+        Logger.info("Find " + name.toUpperCase() + " checkbox");
         return driver.findElement(By.xpath(String.format(Strings.CheckboxName, name)));
     }
 
     public void waitUntilFilterIsApply() {
+        Logger.info("Waiting for applying the filter...");
         try {
             wait.until(ExpectedConditions.attributeContains(getListOfCarNameElements().get(0),"innerText", Strings.CheckboxValue));
         } catch (StaleElementReferenceException e) {
@@ -103,16 +103,24 @@ public class OurCarsPage {
     }
 
     public void clickCheckbox(WebElement checkbox) {
+        Logger.info("Select " + checkbox.getText().toUpperCase() + " checkbox");
         checkbox.click();
+        if (!checkThatCheckboxIsChecked(checkbox)) {
+            Logger.info("Had to click a second time");
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", checkbox);
+            checkbox.click();
+        }
     }
 
     public boolean checkThatCheckboxIsChecked(WebElement checkbox) {
+        Logger.info("Find ancestor of checkbox to check className is 'checked'");
         WebElement ancestor = checkbox.findElement(By.xpath(".."));
         String classNameValue = ancestor.getAttribute("className");
         return classNameValue.equals("checked") ? true : false;
     }
 
     public void areCarNamesValid(String name) {
+        Logger.info("Check that each car name in the list is " + name.toUpperCase());
         List<String> names = getListOfCarNamesFromCarElements();
         if (!names.isEmpty()) {
             for (int i = 0; i < names.size(); i++) {
@@ -125,6 +133,7 @@ public class OurCarsPage {
     }
 
     private List<String> getListOfCarNamesFromCarElements() {
+        Logger.info("Get all car names from the page");
         List<WebElement> elements = getListOfCarNameElements();
         List<String> names = new ArrayList<String>();
         if (!elements.isEmpty()) {
@@ -136,6 +145,7 @@ public class OurCarsPage {
     }
 
     public void checkThatCarsHavePicture() {
+        Logger.info("Check that each car in the list has a picture");
         List<WebElement> pictures = getLisOfImageElements();
         if (!pictures.isEmpty()) {
             for (int i = 0; i < pictures.size(); i++) {
@@ -148,13 +158,27 @@ public class OurCarsPage {
     }
 
     public void checkThatCarsHaveSpecifiedAttribute(List<WebElement> elements) {
+
+        Logger.info("Check that cars attribute " + findSibling(elements).getText().toUpperCase() + " isn't null");
         if (!elements.isEmpty()) {
             for (int i = 0; i < elements.size(); i++) {
-                Assert.assertNotNull(elements.get(i).getText()
-                        ,"Car in the list doesn't have a pictures");
+                Assert.assertNotNull(elements.get(i).getText(),"Car in the list doesn't have a pictures");
             }
         } else {
             throw new RuntimeException("List of elements is empty!");
         }
+    }
+
+    private WebElement findSibling(List<WebElement> elements) {
+        String xpathToString = elements.get(0).toString();
+        String xpathString1 = xpathToString.substring(xpathToString.indexOf("//*"));
+
+        String xpathString2 = xpathString1.substring(0, xpathString1.length() - 1);
+        String index = xpathString2.substring(xpathString2.indexOf("tr"), xpathString2.length() - 1).substring(3,4).toString();
+
+        String correctXpath = xpathString2.replace("/li/", "/li[" + index + "]/");
+        WebElement sibling = driver.findElement(By.xpath(correctXpath + "/preceding-sibling::td"));
+
+        return sibling;
     }
 }

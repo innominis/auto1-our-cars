@@ -45,7 +45,6 @@ public class OurCarsTest extends BaseTest {
 
     @Test(dependsOnMethods = "verifyEachCarHasPicture")
     public void verifyCompleteInformationOfEachCar() {
-        ourCarsPage.checkThatCarsHaveSpecifiedAttribute(ourCarsPage.getListOfCarNameElements());
         ourCarsPage.checkThatCarsHaveSpecifiedAttribute(ourCarsPage.getLisOfStockNumberElements());
         ourCarsPage.checkThatCarsHaveSpecifiedAttribute(ourCarsPage.getOdometerReadingElements());
         ourCarsPage.checkThatCarsHaveSpecifiedAttribute(ourCarsPage.getFirstRegistrationElements());
