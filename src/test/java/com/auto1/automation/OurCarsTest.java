@@ -2,6 +2,7 @@ package com.auto1.automation;
 
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -18,7 +19,7 @@ import org.testng.annotations.Test;
 public class OurCarsTest extends BaseTest {
     OurCarsPage ourCarsPage;
 
-    @BeforeTest
+    @BeforeClass
     public void setUp() {
         driver = getDriver();
         ourCarsPage = new OurCarsPage(driver);

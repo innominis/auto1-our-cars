@@ -6,6 +6,8 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.List;
 public class OurCarsPage {
     WebDriver driver;
     WebDriverWait wait;
+    Logger logger = LogManager.getLogger();
 
     public OurCarsPage(WebDriver driver) {
         this.driver = driver;
@@ -84,17 +87,17 @@ public class OurCarsPage {
     }
 
     public void goToPage() {
-        Logger.info("Go to Our cars page");
+        logger.info("Go to Our cars page");
         driver.get(Strings.OurCarsUrl);
     }
 
     public WebElement findSpecifiedCheckbox(String name) {
-        Logger.info("Find " + name.toUpperCase() + " checkbox");
+        logger.info("Find " + name.toUpperCase() + " checkbox");
         return driver.findElement(By.xpath(String.format(Strings.CheckboxName, name)));
     }
 
     public void waitUntilFilterIsApply() {
-        Logger.info("Waiting for applying the filter...");
+        logger.info("Waiting for applying the filter...");
         try {
             wait.until(ExpectedConditions.attributeContains(getListOfCarNameElements().get(0),"innerText", Strings.CheckboxValue));
         } catch (StaleElementReferenceException e) {
@@ -103,24 +106,24 @@ public class OurCarsPage {
     }
 
     public void clickCheckbox(WebElement checkbox) {
-        Logger.info("Select " + checkbox.getText().toUpperCase() + " checkbox");
+        logger.info("Select " + checkbox.getText().toUpperCase() + " checkbox");
         checkbox.click();
         if (!checkThatCheckboxIsChecked(checkbox)) {
-            Logger.info("Had to click a second time");
+            logger.info("Had to click a second time");
             ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", checkbox);
             checkbox.click();
         }
     }
 
     public boolean checkThatCheckboxIsChecked(WebElement checkbox) {
-        Logger.info("Find ancestor of checkbox to check className is 'checked'");
+        logger.info("Find ancestor of checkbox to check className is 'checked'");
         WebElement ancestor = checkbox.findElement(By.xpath(".."));
         String classNameValue = ancestor.getAttribute("className");
         return classNameValue.equals("checked") ? true : false;
     }
 
     public void areCarNamesValid(String name) {
-        Logger.info("Check that each car name in the list is " + name.toUpperCase());
+        logger.info("Check that each car name in the list is " + name.toUpperCase());
         List<String> names = getListOfCarNamesFromCarElements();
         if (!names.isEmpty()) {
             for (int i = 0; i < names.size(); i++) {
@@ -133,7 +136,7 @@ public class OurCarsPage {
     }
 
     private List<String> getListOfCarNamesFromCarElements() {
-        Logger.info("Get all car names from the page");
+        logger.info("Get all car names from the page");
         List<WebElement> elements = getListOfCarNameElements();
         List<String> names = new ArrayList<String>();
         if (!elements.isEmpty()) {
@@ -145,7 +148,7 @@ public class OurCarsPage {
     }
 
     public void checkThatCarsHavePicture() {
-        Logger.info("Check that each car in the list has a picture");
+        logger.info("Check that each car in the list has a picture");
         List<WebElement> pictures = getLisOfImageElements();
         if (!pictures.isEmpty()) {
             for (int i = 0; i < pictures.size(); i++) {
@@ -158,8 +161,7 @@ public class OurCarsPage {
     }
 
     public void checkThatCarsHaveSpecifiedAttribute(List<WebElement> elements) {
-
-        Logger.info("Check that cars attribute " + findSibling(elements).getText().toUpperCase() + " isn't null");
+        logger.info("Check that cars attribute " + findSibling(elements).getText().toUpperCase() + " isn't null");
         if (!elements.isEmpty()) {
             for (int i = 0; i < elements.size(); i++) {
                 Assert.assertNotNull(elements.get(i).getText(),"Car in the list doesn't have a pictures");
